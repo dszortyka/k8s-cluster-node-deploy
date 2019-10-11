@@ -1,0 +1,13 @@
+
+
+- hosts: cluster
+  remote_user: root
+  # include: vars.yaml
+  #vars:
+  #  apiserver_advertise_address: '10.0.0.98'
+  #  pod_network_cidr: '192.168.0.0/16'
+
+  tasks:
+    - include: base.yaml
+
+    - include: install_k8_cluster.yaml
