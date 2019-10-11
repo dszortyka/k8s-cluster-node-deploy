@@ -192,5 +192,69 @@ kclustert.home.net         : ok=2    changed=1    unreachable=0    failed=0    s
 
 # Install Node
 
+```
+Daniels-MacBook-Pro:kube daniel$ ansible-playbook -i cicd_hosts.yaml playbooks/k8s/deploy_node.yaml 
+
+PLAY [cluster] *********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [kclustert.home.net]
+
+TASK [Get the command information to later join the node] *********************************************************
+changed: [kclustert.home.net]
+
+TASK [set_fact] *********************************************************
+ok: [kclustert.home.net]
+
+TASK [debug] *********************************************************
+ok: [kclustert.home.net] => {
+    "msg": "kubeadm join 10.0.0.98:6443 --token 3oc898.6kmp2i7jq82wo6z2     --discovery-token-ca-cert-hash sha256:f5855ee6907178e423e8dcd3e47b4ac5d78868ee3271f6151c33a713119902ed "
+}
+...
+...
+TASK [Join the Node server into the K8 cluster] *********************************************************
+changed: [knode2.home.net]
+
+TASK [debug] *********************************************************
+ok: [knode2.home.net] => {
+    "msg": {
+        "changed": true, 
+        "cmd": "kubeadm join 10.0.0.98:6443 --token 3oc898.6kmp2i7jq82wo6z2     --discovery-token-ca-cert-hash sha256:f5855ee6907178e423e8dcd3e47b4ac5d78868ee3271f6151c33a713119902ed ", 
+        "delta": "0:00:22.363906", 
+        "end": "2019-10-11 19:35:23.198114", 
+        "failed": false, 
+        "rc": 0, 
+        "start": "2019-10-11 19:35:00.834208", 
+        "stderr": "\t[WARNING SystemVerification]: this Docker version is not on the list of validated versions: 19.03.3. Latest validated version: 18.09", 
+        "stderr_lines": [
+            "\t[WARNING SystemVerification]: this Docker version is not on the list of validated versions: 19.03.3. Latest validated version: 18.09"
+        ], 
+        "stdout": "[preflight] Running pre-flight checks\n[preflight] Reading configuration from the cluster...\n[preflight] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'\n[kubelet-start] Downloading configuration for the kubelet from the \"kubelet-config-1.16\" ConfigMap in the kube-system namespace\n[kubelet-start] Writing kubelet configuration to file \"/var/lib/kubelet/config.yaml\"\n[kubelet-start] Writing kubelet environment file with flags to file \"/var/lib/kubelet/kubeadm-flags.env\"\n[kubelet-start] Activating the kubelet service\n[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap...\n\nThis node has joined the cluster:\n* Certificate signing request was sent to apiserver and a response was received.\n* The Kubelet was informed of the new secure connection details.\n\nRun 'kubectl get nodes' on the control-plane to see this node join the cluster.", 
+        "stdout_lines": [
+            "[preflight] Running pre-flight checks", 
+            "[preflight] Reading configuration from the cluster...", 
+            "[preflight] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'", 
+            "[kubelet-start] Downloading configuration for the kubelet from the \"kubelet-config-1.16\" ConfigMap in the kube-system namespace", 
+            "[kubelet-start] Writing kubelet configuration to file \"/var/lib/kubelet/config.yaml\"", 
+            "[kubelet-start] Writing kubelet environment file with flags to file \"/var/lib/kubelet/kubeadm-flags.env\"", 
+            "[kubelet-start] Activating the kubelet service", 
+            "[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap...", 
+            "", 
+            "This node has joined the cluster:", 
+            "* Certificate signing request was sent to apiserver and a response was received.", 
+            "* The Kubelet was informed of the new secure connection details.", 
+            "", 
+            "Run 'kubectl get nodes' on the control-plane to see this node join the cluster."
+        ]
+    }
+}
+
+PLAY RECAP *********************************************************
+kclustert.home.net         : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+knode2.home.net            : ok=31   changed=26   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+
+```
+
 # Credits
 A lot of this work has been inspired by https://github.com/geerlingguy/ansible-role-kubernetes (from Jeff Geerling  https://github.com/geerlingguy), those are way more elegant and sophysticated scripts that delivers a running cluster.  
