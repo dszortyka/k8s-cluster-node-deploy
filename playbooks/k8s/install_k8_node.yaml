@@ -1,0 +1,4 @@
+    - name: Join the Node server into the K8 cluster
+      shell: "{{ hostvars['kclustert.home.net']['join_command'] }}"
+      register: join_results
+    - debug: msg="{{ join_results }}"
