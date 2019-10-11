@@ -1,0 +1,5 @@
+- hosts: cluster
+  remote_user: root
+
+  tasks:
+    - include: install_network_plugin.yaml
