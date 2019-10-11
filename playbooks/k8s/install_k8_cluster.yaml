@@ -1,0 +1,16 @@
+--- 
+
+  - name: Init kubeadm - kubernetes
+    command: >
+      kubeadm init --apiserver-advertise-address={{ hostvars['kclustert.home.net']['apiserver_advertise_address'] }} --pod-network-cidr={{ hostvars['kclustert.home.net']['pod_network_cidr'] }}
+    register: cluster_init
+  - debug: msg="{{ cluster_init.stdout }}"
+
+  - name: Mkdir $HOME/.kube
+    shell: rm -Rf $HOME/.kube && mkdir -p $HOME/.kube
+
+  - name: Copy kube config to users home
+    shell: rm -f $HOME/.kube/config && cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+  - name: Apply correct permissions
+    shell: chown $(id -u):$(id -g) $HOME/.kube/config
