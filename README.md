@@ -28,13 +28,36 @@ Other files:
 
 
 Notice:
-- With "base.yaml", there first task there is 2 variables ued in file 'install_k8_cluster.yaml'.
+- With "base.yaml", in the first task, there are 2 variables used in file 'install_k8_cluster.yaml'. They will define API Server IP and POD Network CIDR, required by network plugin during kubeadm init.
 
 -- set_fact: apiserver_advertise_address="10.0.0.98"
 
 -- set_fact: pod_network_cidr="192.168.0.0/16"
 
 - With "deploy_all", there is a shell script once cluster and network plugin are deploys, this shell script wait until all PODs are with 'Running' status before moving forward and join the node. 
+
+```
+    - name: Awaiting all PODs to start
+      #script: sh check_awaiting_solution.sh
+      shell:
+       cmd: |
+        echo "Get total PODs and wait until all of them are in Running state to move forward"
+        TOT=`kubectl get pods --all-namespaces|awk '{print $4}'|wc -l`
+        COUNT_RUNNING=`kubectl get pods --all-namespaces|awk '{print $4}'|grep Running|wc -l`
+        echo "Total PODs: $TOT"
+        echo "Total running pods: $COUNT_RUNNING"
+        let DIFF="$(($TOT)) - $(($COUNT_RUNNING))"
+        sleep 40
+        while [  $(($DIFF)) -gt 1 ]; do
+          sleep 20
+          TOT=`kubectl get pods --all-namespaces|awk '{print $4}'|wc -l`
+          COUNT_RUNNING=`kubectl get pods --all-namespaces|awk '{print $4}'|grep Running|wc -l`
+          let DIFF="$(($TOT)) - $(($COUNT_RUNNING))"
+          echo "Total PODs : $COUNT_RUNNING"
+          echo "Pending to initiate: $DIFF"
+        done
+        echo "All PODs are running"
+```
 
 
 # Hosts inventory
