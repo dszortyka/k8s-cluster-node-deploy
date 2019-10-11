@@ -16,6 +16,5 @@
 
   tasks:
     # Install base packages
-    include: base.yaml
-
-    include: install_k8_node.yaml
+    - include: base.yaml
+    - include: install_k8_node.yaml
