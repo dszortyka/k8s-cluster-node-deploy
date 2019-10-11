@@ -1,0 +1,157 @@
+---
+
+# Base playbook to install and configure system packages for K8s
+# Most of the work has been created by reviewing original code at: 
+# https://github.com/geerlingguy/ansible-role-kubernetes
+
+# This file is supposed to contain all commands and packages that are not 
+# specific to the Cluster or Node
+
+# This file cannot be called directly.
+# It has to be called by deploy_all.yaml or deploys_cluster.yaml or deploy_node.yaml
+
+
+
+#  tasks:
+
+  - name: Define GLOBAL Variables
+    shell: /bin/true
+  - set_fact: apiserver_advertise_address="10.0.0.98"
+  - set_fact: pod_network_cidr="192.168.0.0/16"
+
+  - name: Define utf-8 codepage
+    shell: printf   'LANG=en_US.utf-8\n
+                    LC_ALL=en_US.utf-8\n' >> /etc/environment
+
+  - name: Put SELinux in permissive mode
+    selinux:
+      policy: targeted
+      state: permissive
+
+  - name: Replace SELinux config file
+    shell: sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+
+  # Install Docker
+  - name: Install yum utils
+    yum:
+      name: yum-utils
+      state: latest
+
+  - name: Install device-mapper-persistent-data
+    yum:
+      name: device-mapper-persistent-data
+      state: latest
+
+  - name: Install lvm2
+    yum:
+      name: lvm2
+      state: latest
+
+  - name: Add Docker repo
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docer-ce.repo
+    become: yes
+
+  - name: Install Docker
+    package:
+      name: docker-ce
+      state: latest
+    become: yes
+
+
+  - name: Create kubernetes repository
+    yum_repository:
+      name: kubernetes
+      description: Kubernetes
+      enabled: true
+      gpgcheck: true
+      repo_gpgcheck: true
+      baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+      gpgkey:
+        - https://packages.cloud.google.com/yum/doc/yum-key.gpg
+        - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+  - name: Add Kubernetes GPG keys
+    rpm_key:
+      key: "{{ item }}"
+      state: present
+    register: kubernetes_rpm_key
+    with_items:
+      - https://packages.cloud.google.com/yum/doc/yum-key.gpg
+      - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+
+  # Install kubernetes apps
+  - name: Install Kubelet
+    yum:
+      name: kubelet
+      state: latest
+
+  - name: Install kubectl
+    yum:
+      name: kubectl
+      state: latest   
+
+  - name: Install kubeadm
+    yum:
+      name: kubeadm
+      state: latest  
+
+
+  # Finish configuration and enable services
+
+  - name: Enable br_netfilter
+    shell: modprobe br_netfilter
+
+  - name: Enable net.bridge.bridge-nf-call-ip6tables
+    shell: printf "net.bridge.bridge-nf-call-ip6tables = 1\n" >> /etc/sysctl.d/k8s.conf
+
+  - name: Enable kernel module net.bridge.bridge-nf-call-iptables
+    shell: printf "net.bridge.bridge-nf-call-iptables = 1\n" >> /etc/sysctl.d/k8s.conf
+
+  - name: Apply kernel modules
+    shell: sysctl --system
+
+  - name: Systemctl enable kubelet.service
+    shell: systemctl enable kubelet.service
+  
+  - name: Create Etc Docker directory
+    file:
+      path: /etc/docker
+      state: directory
+
+  - name: Configure docker options
+    shell:
+      cmd: |
+        cat > /etc/docker/daemon.json <<EOF
+        {
+          "exec-opts": ["native.cgroupdriver=systemd"],
+          "log-driver": "json-file",
+          "log-opts": {
+            "max-size": "100m"
+          },
+          "storage-driver": "overlay2",
+          "storage-opts": [
+            "overlay2.override_kernel_check=true"
+          ]
+        }
+
+        EOF
+
+  - name: Systemctl daemon-reload
+    shell: systemctl daemon-reload
+
+  - name: Systemctl restart docker
+    shell: systemctl restart docker
+
+  - name: Systemctl enable docker
+    shell: systemctl enable docker
+
+  - name: Systemctl stop firewalld
+    shell: systemctl stop firewalld
+
+  - name: Systemctl disable firewalld
+    shell: systemctl disable firewalld
+
