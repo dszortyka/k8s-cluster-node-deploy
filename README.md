@@ -25,6 +25,8 @@ Other files:
 
 - install_network_plugin.yaml: Single task related to plugin installation
 
+- cicd_inventory.yaml: Regular ansible inventory file. It has to be modified as per your landscape.
+
 
 
 Notice:
