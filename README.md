@@ -77,3 +77,6 @@ knode2.home.net
 # Install Network
 
 # Install Node
+
+# Credits
+A lot of this work has been inspired by https://github.com/geerlingguy/ansible-role-kubernetes (from Jeff Geerling  https://github.com/geerlingguy), those are way more elegant and sophysticated scripts that delivers a running cluster.  
