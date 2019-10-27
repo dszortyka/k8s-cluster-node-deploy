@@ -16,7 +16,7 @@
 
   - name: Define GLOBAL Variables
     shell: /bin/true
-  - set_fact: apiserver_advertise_address="10.0.0.98"
+  - set_fact: apiserver_advertise_address="10.0.0.95"
   - set_fact: pod_network_cidr="192.168.0.0/16"
 
   - name: Define utf-8 codepage

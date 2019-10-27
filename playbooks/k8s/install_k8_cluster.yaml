@@ -2,7 +2,7 @@
 
   - name: Init kubeadm - kubernetes
     command: >
-      kubeadm init --apiserver-advertise-address={{ hostvars['kclustert.home.net']['apiserver_advertise_address'] }} --pod-network-cidr={{ hostvars['kclustert.home.net']['pod_network_cidr'] }}
+      kubeadm init --apiserver-advertise-address={{ hostvars['kcluster.home.net']['apiserver_advertise_address'] }} --pod-network-cidr={{ hostvars['kcluster.home.net']['pod_network_cidr'] }}
     register: cluster_init
   - debug: msg="{{ cluster_init.stdout }}"
 
