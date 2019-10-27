@@ -1,5 +1,6 @@
 [cluster]
-kclustert.home.net
+kcluster.home.net
 
 [nodes]
+knode1.home.net
 knode2.home.net
